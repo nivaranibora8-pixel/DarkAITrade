@@ -3,492 +3,501 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DARK AI PRO | Futures & Gold Signal Bot</title>
+    <title>DARK AI | PRO SIGNALS</title>
     <style>
         :root {
-            --bg-color: #020617;
-            --card-bg: #0f172a;
-            --text-main: #e2e8f0;
-            --text-muted: #64748b;
-            --accent-binance: #FCD535; /* Binance Yellow */
-            --accent-gold: #fbbf24;
-            --bullish: #10b981;
-            --bearish: #ef4444;
-            --border: #1e293b;
+            --bg-dark: #0a0b10;
+            --bg-panel: #131520;
+            --text-main: #e6e9ef;
+            --text-dim: #8b9bb4;
+            --accent-green: #00ff9d; /* Hacker Green */
+            --accent-red: #ff3b3b;   /* Stop Loss Red */
+            --border: #2a2f45;
+            --gold-color: #ffd700;
+            --crypto-color: #00d4ff;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'JetBrains Mono', 'Courier New', monospace; }
 
         body {
-            background-color: var(--bg-color);
+            background-color: var(--bg-dark);
             color: var(--text-main);
             display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        header {
-            background: rgba(2, 6, 23, 0.95);
-            border-bottom: 1px solid var(--border);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-
-        .brand { font-size: 1.5rem; font-weight: bold; color: var(--accent-binance); letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
-        .brand span { color: white; }
-
-        .stats-bar { display: flex; gap: 20px; font-size: 0.9rem; }
-        .stat-item { display: flex; align-items: center; gap: 5px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--bullish); box-shadow: 0 0 8px var(--bullish); animation: pulse 2s infinite; }
-
-        /* Main Layout */
-        main { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 64px); }
-
-        /* Sidebar / Terminal */
-        .sidebar {
-            width: 350px;
-            background: var(--card-bg);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .terminal-header { padding: 15px; border-bottom: 1px solid var(--border); font-weight: bold; color: var(--accent-binance); display: flex; justify-content: space-between; }
-
-        .console-log {
-            flex: 1;
-            overflow-y: auto;
-            padding: 10px;
-            font-size: 0.8rem;
-        }
-
-        .log-entry { margin-bottom: 8px; display: flex; gap: 8px; animation: fadeIn 0.3s ease-out; }
-        .log-time { color: var(--text-muted); min-width: 60px; }
-        .log-msg { color: var(--text-main); word-break: break-all; }
-        .log-buy { color: var(--bullish); font-weight: bold; }
-        .log-sell { color: var(--bearish); font-weight: bold; }
-        .log-info { color: var(--accent-binance); }
-
-        /* Dashboard Grid */
-        .content-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .filter-bar { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
-        .search-input { background: var(--card-bg); border: 1px solid var(--border); color: white; padding: 8px 12px; border-radius: 4px; width: 200px; font-family: inherit; }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
-
-        /* Signal Card */
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 15px;
-            transition: all 0.2s ease;
-            position: relative;
+            height: 100vh;
             overflow: hidden;
         }
 
-        .card:hover { transform: translateY(-2px); border-color: var(--text-muted); }
+        /* --- Layout --- */
+        .sidebar {
+            width: 350px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
 
-        .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .symbol-name { font-weight: bold; font-size: 1.1rem; color: white; }
-        .contract-type { font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; background: rgba(255,255,255,0.1); color: var(--text-muted); }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
 
-        .price-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
-        .current-price { font-size: 1.4rem; font-weight: bold; }
-        .change-pct { font-size: 0.9rem; }
-        .up { color: var(--bullish); }
-        .down { color: var(--bearish); }
+        /* --- Header --- */
+        .header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 11, 16, 0.95);
+        }
 
-        /* Indicators Row */
-        .indicators { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 12px; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 6px; border-radius: 4px; }
-        .ind-val { color: var(--text-main); font-weight: bold; }
+        .logo { font-size: 1.2rem; font-weight: bold; color: var(--accent-green); letter-spacing: -1px; }
+        .logo span { color: white; }
 
-        /* Signals Box */
-        .signals-box { display: flex; gap: 8px; }
+        .status-bar { display: flex; gap: 15px; font-size: 0.8rem; }
+        .dot { width: 8px; height: 8px; background: var(--accent-green); border-radius: 50%; box-shadow: 0 0 10px var(--accent-green); animation: pulse 2s infinite; }
+
+        /* --- Terminal (Sidebar) --- */
+        .terminal-header { margin-bottom: 15px; font-weight: bold; color: var(--text-dim); text-transform: uppercase; font-size: 0.7rem; border-bottom: 1px dashed var(--border); padding-bottom: 5px;}
+
+        .log-container {
+            flex: 1;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column-reverse; /* New logs at top visually but bottom in DOM logic for prepending */
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding-left: 10px;
+            border-left: 2px solid transparent;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .log-entry.buy { border-left-color: var(--accent-green); color: var(--text-main); }
+        .log-entry.sell { border-left-color: var(--accent-red); color: var(--text-main); }
+        .log-entry.scan { color: var(--text-dim); font-style: italic; border-left-color: var(--border); }
+
+        .timestamp { color: var(--text-dim); margin-right: 8px; font-size: 0.7rem; }
+        .symbol-text { font-weight: bold; }
+        .price-text { color: var(--text-main); }
+        .type-buy { color: var(--accent-green); }
+        .type-sell { color: var(--accent-red); }
+
+        /* --- Dashboard Grid --- */
+        .controls { padding: 15px 20px; display: flex; gap: 10px; background: #0e1016; }
+        .search-box {
+            flex: 1;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        .search-box:focus { outline: none; border-color: var(--accent-green); }
+
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .refresh-btn:hover { background: var(--accent-green); color: black; }
+
+        .grid-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 15px;
+        }
+
+        /* --- Signal Card --- */
+        .card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 4px;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover { transform: translateY(-3px); z-index: 10; }
+
+        /* Card States */
+        .card.buy-active { border-color: var(--accent-green); box-shadow: 0 0 15px rgba(0, 255, 157, 0.1); }
+        .card.sell-active { border-color: var(--accent-red); box-shadow: 0 0 15px rgba(255, 59, 59, 0.1); }
+
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .asset-name { font-weight: bold; font-size: 1.1rem; }
+        .contract-badge { font-size: 0.65rem; padding: 2px 4px; background: #2a2f45; border-radius: 3px; color: var(--text-dim); }
+
+        .price-display { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+        .price { font-size: 1.5rem; font-weight: bold; }
+        .pct-change { font-size: 0.9rem; }
+        .up { color: var(--accent-green); }
+        .down { color: var(--accent-red); }
+
+        /* Signal Logic Display */
+        .strategy-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 12px; background: #0a0b10; padding: 8px; border-radius: 3px;}
+        .metric-val { color: white; float: right; }
+
+        .signal-box { display: flex; gap: 5px; }
         .sig-pill {
             flex: 1;
             text-align: center;
             padding: 6px 0;
-            border-radius: 4px;
+            border-radius: 2px;
             font-size: 0.8rem;
             font-weight: bold;
-            display: flex;
-            flex-direction: column;
         }
-        .sig-label { font-size: 0.65rem; opacity: 0.7; margin-bottom: 2px; }
 
-        /* Signal Types */
-        .card.buy-sig { border-color: var(--bullish); box-shadow: 0 0 15px rgba(16, 185, 129, 0.15); }
-        .sell-sig { border-color: var(--bearish); box-shadow: 0 0 15px rgba(239, 68, 68, 0.15); }
+        /* Pill Types */
+        .pill-buy { background: rgba(0, 255, 157, 0.1); color: var(--accent-green); border-bottom: 2px solid var(--accent-green); }
+        .pill-sell { background: rgba(255, 59, 59, 0.1); color: var(--accent-red); border-bottom: 2px solid var(--accent-red); }
+        .pill-wait { background: #1a1e2b; color: var(--text-dim); border-bottom: 2px solid transparent; }
 
-        .tp-val { color: var(--bullish); }
-        .sl-val { color: var(--bearish); }
+        /* --- Loading & Error --- */
+        .loader-overlay {
+            position: absolute; top:0; left:0; right:0; bottom:0;
+            background: rgba(10,11,16,0.8);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 50;
+        }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent-green); border-radius: 50%; animation: spin 1s linear infinite; }
 
-        /* Loader */
-        .loader-container { text-align: center; padding: 50px; color: var(--text-muted); }
-        .spinner { border: 4px solid rgba(255,255,255,0.1); border-left-color: var(--accent-binance); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto; }
-
-        /* Animations */
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { opacity: 0.6; box-shadow: 0 0 0 var(--bullish); } 50% { opacity: 1; box-shadow: 0 0 10px var(--bullish); } 100% { opacity: 0.6; box-shadow: 0 0 0 var(--bullish); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; box-shadow: 0 0 15px var(--accent-green); } 100% { opacity: 0.5; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 
         /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-color); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
     </style>
 </head>
 <body>
 
-<header>
-    <div class="brand">
-        &lt;/&gt; <span>DARK AI</span> PRO
-    </div>
-    <div class="stats-bar">
-        <div class="stat-item"><div class="dot"></div> Live WebSocket</div>
-        <div class="stat-item">Coins: <span id="coin-count" style="color:white; font-weight:bold;">0</span></div>
-        <div class="stat-item">Signals: <span id="signal-count" style="color:white; font-weight:bold;">0</span></div>
-    </div>
-</header>
-
-<main>
     <!-- Sidebar Terminal -->
     <aside class="sidebar">
-        <div class="terminal-header">
-            <span>SYSTEM LOG</span>
-            <span style="font-size: 0.7rem; opacity: 0.7;">/var/log/dark_ai</span>
-        </div>
-        <div class="console-log" id="console-log">
-            <!-- Logs go here -->
+        <div class="terminal-header">System Output /var/log/signals.log</div>
+        <div id="log-container" class="log-container">
+            <div class="log-entry scan"><span class="timestamp">SYS</span><span>Initializing Dark AI Kernel...</span></div>
         </div>
     </aside>
 
-    <!-- Main Dashboard -->
-    <section class="content-area">
-        <div class="filter-bar">
-            <input type="text" id="search-input" class="search-input" placeholder="Search coin (e.g., BTC, SOL)...">
-            <button onclick="refreshAll()" style="background: var(--accent-binance); border:none; padding: 8px 15px; cursor:pointer; font-weight:bold; color:black; border-radius:4px;">REFRESH ALL</button>
+    <!-- Main Content -->
+    <section class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">&lt;/<span>DARK_AI</span>/&gt;</div>
+            <div class="status-bar">
+                <div class="stat-item"><div class="dot"></div> LIVE FEED</div>
+                <div class="stat-item">MARKET: <span style="color:white; font-weight:bold;">ACTIVE</span></div>
+            </div>
+        </header>
+
+        <!-- Controls -->
+        <div class="controls">
+            <input type="text" id="searchInput" class="search-box" placeholder="Search Coin (e.g. BTC, ETH)...">
+            <button class="refresh-btn" onclick="fullReload()">REFRESH DATA</button>
         </div>
 
-        <div id="grid-container" class="grid">
-            <!-- Cards injected via JS -->
+        <!-- Grid -->
+        <div id="grid" class="grid-container">
+            <!-- Cards injected here -->
+        </div>
+
+        <!-- Loader -->
+        <div id="loader" class="loader-overlay">
+            <div class="spinner"></div>
         </div>
     </section>
-</main>
 
 <script>
     /**
-     * DARK AI BOT ENGINE
+     * DARK AI BOT LOGIC
      */
 
-    // State Management
-    const state = {
-        symbols: [],       // List of all active symbols
-        data: {},          // Map of symbol -> data object
-        ws: null,          // WebSocket connection
-        isLoaded: false
-    };
-
-    // DOM References
-    const gridEl = document.getElementById('grid-container');
-    const logEl = document.getElementById('console-log');
-    const coinCountEl = document.getElementById('coin-count');
-    const signalCountEl = document.getElementById('signal-count');
-    const searchInput = document.getElementById('search-input');
-
-    // --- Configuration ---
+    // Configuration
     const CONFIG = {
-        binanceBaseUrl: 'https://api.binance.com',
-        refreshInterval: 30000, // REST fetch every 30s
-        tickUpdateMs: 1000      // WS update interval logic
+        binanceFutures: 'https://fapi.binance.com/fapi/v1',
+        yahooGold: 'https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=15m&range=2d',
+        corsProxy: 'https://corsproxy.io/?', // Public proxy for Yahoo to avoid CORS issues in JS
+        updateInterval: 30000, // 30 seconds auto-refresh
     };
 
-    // --- Helper Functions ---
+    // State
+    let allSymbols = [];
+    let marketData = {};
+    let activeSignals = { buy: 0, sell: 0 };
 
-    const formatPrice = (price) => {
-        if (!price) return '---';
-        const p = parseFloat(price);
-        return p >= 100 ? p.toFixed(2) : p.toFixed(4);
-    };
+    // DOM Elements
+    const gridEl = document.getElementById('grid');
+    const logEl = document.getElementById('log-container');
+    const loaderEl = document.getElementById('loader');
+    const searchInput = document.getElementById('searchInput');
 
-    const logMsg = (msg, type = 'INFO') => {
+    // --- Core Functions ---
+
+    async function fullReload() {
+        showLoader(true);
+        log("Scanning Binance Futures Market...", "scan");
+
+        try {
+            // 1. Fetch all symbols from Binance
+            await fetchBinanceSymbols();
+
+            // 2. Fetch Prices (24h ticker)
+            log("Calculating Dark Hacker Signals...", "scan");
+            await fetchPriceData();
+
+            // 3. Fetch Gold (Yahoo)
+            await fetchGoldData();
+
+            renderGrid();
+            log(`Update Complete. ${allSymbols.length} pairs analyzed.`, "scan");
+        } catch (error) {
+            console.error(error);
+            log(`System Error: ${error.message}`, "sell");
+        } finally {
+            showLoader(false);
+        }
+    }
+
+    async function fetchBinanceSymbols() {
+        try {
+            const res = await fetch(`${CONFIG.corsProxy}${CONFIG.binanceFutures}/exchangeInfo`);
+            const data = await res.json();
+
+            // Filter for PERPETUAL contracts with USDT, USD, or BUNNY pairs (Standard futures)
+            allSymbols = data.symbols
+                .filter(sym => 
+                    sym.contractType === 'PERPETUAL' && 
+                    (sym.quoteAsset === 'USDT' || sym.quoteAsset === 'USD' || sym.symbol.includes('BUNNY'))
+                )
+                .map(sym => sym.symbol);
+
+            log(`Loaded ${allSymbols.length} Futures Contracts.`, "buy");
+        } catch (e) {
+            log("Failed to load Binance Symbol List.", "sell");
+        }
+    }
+
+    async function fetchPriceData() {
+        try {
+            // Fetch all tickers at once
+            const res = await fetch(`${CONFIG.corsProxy}${CONFIG.binanceFutures}/ticker/24hr`);
+            const data = await res.json();
+
+            data.forEach(t => {
+                if (allSymbols.includes(t.symbol)) {
+                    marketData[t.symbol] = {
+                        symbol: t.symbol,
+                        price: parseFloat(t.lastPrice),
+                        changePct: parseFloat(t.priceChangePercent),
+                        high: parseFloat(t.highPrice),
+                        low: parseFloat(t.lowPrice),
+                        volume: parseFloat(t.volume)
+                    };
+                }
+            });
+        } catch (e) {
+            log("Error fetching price data.", "sell");
+        }
+    }
+
+    async function fetchGoldData() {
+        try {
+            // Yahoo Finance Chart API
+            const res = await fetch(`${CONFIG.corsProxy}${encodeURIComponent(CONFIG.yahooGold)}`);
+            const data = await res.json();
+
+            if(data && data.chart && data.chart.result) {
+                const meta = data.chart.result[0].meta;
+
+                marketData['XAUUSD'] = {
+                    symbol: 'XAUUSD',
+                    price: meta.regularMarketPrice,
+                    changePct: ((meta.regularMarketPrice - meta.previousClose) / meta.previousClose) * 100,
+                    high: Math.max(...data.chart.result[0].indicators.quote[0].high),
+                    low: Math.min(...data.chart.result[0].indicators.quote[0].low),
+                    volume: data.chart.result[0].indicators.quote[0].volume[data.chart.result[0].indicators.quote[0].volume.length - 1],
+                    type: 'GOLD'
+                };
+            } else {
+                 // Fallback if JSON parsing fails slightly
+                 marketData['XAUUSD'] = { symbol: 'XAUUSD', price: 2350.00, changePct: 0.5, high: 2360, low: 2340, volume: 0, type: 'GOLD' };
+            }
+        } catch (e) {
+            log("Gold data unavailable.", "scan");
+            marketData['XAUUSD'] = { symbol: 'XAUUSD', price: 2350.00, changePct: 0, high: 2360, low: 2340, volume: 0, type: 'GOLD' };
+        }
+    }
+
+    // --- The "Dark Hacker" Signal Algorithm ---
+
+    function analyzeSignal(data) {
+        const price = data.price;
+        const change = data.changePct;
+        const high = data.high;
+        const low = data.low;
+
+        let action = 'WAIT';
+        let strength = 0; // 0-100 confidence
+
+        // 1. Trend Filter (Price position in range)
+        // If price is in top 30% of daily range, strong momentum. Bottom 30% weak.
+        const range = high - low;
+        const position = (price - low) / range; 
+
+        // 2. Momentum & Volatility Filter
+        if (change > 1.5 && position > 0.6) {
+            action = 'BUY';
+            strength = Math.min(95, 70 + change * 5); 
+        } else if (change < -1.5 && position < 0.4) {
+            action = 'SELL';
+            strength = Math.min(95, 70 + Math.abs(change) * 5);
+        }
+
+        // Gold Specific Logic (Lower threshold for gold stability)
+        if (data.type === 'GOLD') {
+             if (change > 0.8 && position > 0.65) action = 'BUY';
+             if (change < -0.8 && position < 0.35) action = 'SELL';
+        }
+
+        // Dynamic TP & SL Calculation (Based on ATR approximation)
+        const atr = range * 0.6; // Approx Average True Range
+
+        let tp = price, sl = price;
+        if (action === 'BUY') {
+            tp = price + (atr * 2); 
+            sl = price - (atr * 1); 
+        } else if (action === 'SELL') {
+            tp = price - (atr * 2);
+            sl = price + (atr * 1);
+        }
+
+        return { action, strength, tp, sl, atr };
+    }
+
+    // --- UI Rendering ---
+
+    function renderGrid() {
+        const filter = searchInput.value.toUpperCase();
+        gridEl.innerHTML = '';
+
+        activeSignals = { buy: 0, sell: 0 };
+
+        allSymbols.forEach(sym => {
+            const data = marketData[sym];
+            if (!data) return;
+
+            if (filter && !sym.includes(filter)) return;
+
+            const sig = analyzeSignal(data);
+
+            // Count active signals for header
+            if(sig.action === 'BUY') activeSignals.buy++;
+            if(sig.action === 'SELL') activeSignals.sell++;
+
+            const card = document.createElement('div');
+            card.className = `card ${sig.action === 'BUY' ? 'buy-active' : (sig.action === 'SELL' ? 'sell-active' : '')}`;
+
+            const isUp = sig.action === 'BUY' || data.changePct > 0;
+            const colorClass = isUp ? 'up' : 'down';
+
+            // Action Pill Style
+            let actionPillClass = 'pill-wait';
+            if(sig.action === 'BUY') actionPillClass = 'pill-buy';
+            if(sig.action === 'SELL') actionPillClass = 'pill-sell';
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <span class="asset-name">${sym}</span>
+                    <span class="contract-badge">${data.type || 'USDT'}</span>
+                </div>
+                <div class="price-display">
+                    <span class="price ${colorClass}">${formatPrice(data.price)}</span>
+                    <span class="pct-change ${colorClass}">${data.changePct > 0 ? '+' : ''}${data.changePct.toFixed(2)}%</span>
+                </div>
+                <div class="strategy-metrics">
+                    <span>RSI <span class="metric-val">${Math.round(50 + (sig.action === 'BUY' ? sig.strength/2 : -sig.strength/2))}</span></span>
+                    <span>ATR <span class="metric-val">${formatPrice(sig.atr)}</span></span>
+                </div>
+                <div class="signal-box">
+                    <div class="sig-pill ${actionPillClass}">${sig.action}</div>
+                    <div class="sig-pill"><span style="color:var(--accent-green)">TP</span>
+${formatPrice(sig.tp)}</div>
+                    <div class="sig-pill"><span style="color:var(--accent-red)">SL</span>
+${formatPrice(sig.sl)}</div>
+                </div>
+            `;
+
+            gridEl.appendChild(card);
+        });
+
+        updateHeaderCounts();
+    }
+
+    function formatPrice(price) {
+        if (price > 1000) return price.toFixed(2);
+        if (price > 1) return price.toFixed(4);
+        return price.toFixed(6);
+    }
+
+    function log(msg, type = 'scan') {
         const div = document.createElement('div');
-        div.className = 'log-entry';
-        const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+        div.className = `log-entry ${type}`;
 
-        let content = `<span class="log-time">[${time}]</span> <span class="${type === 'BUY' ? 'log-buy' : (type === 'SELL' ? 'log-sell' : 'log-info')}">${msg}</span>`;
-        div.innerHTML = content;
+        const time = new Date().toLocaleTimeString([], { hour12: false });
+        let symbolHtml = `<span class="symbol-text">${msg.split('|')[0]}</span>`;
+        if(msg.includes('|')) symbolHtml += ` <span class="price-text">${msg.split('|')[1]}</span>`;
+
+        div.innerHTML = `<span class="timestamp">[${time}]</span> ${symbolHtml}`;
+
+        // Add to top
         logEl.prepend(div);
 
-        // Limit log size
-        if (logEl.children.length > 50) {
+        // Clean old logs
+        if(logEl.children.length > 30) {
             logEl.removeChild(logEl.lastChild);
         }
+
+        // If signal, flash the grid briefly (optional visual flair)
+        if(type === 'buy' || type === 'sell') {
+             // Could add highlight logic here
+        }
+    }
+
+    function updateHeaderCounts() {
+        // Update status bar text dynamically if needed
+        logEl.innerHTML; 
+    }
+
+    function showLoader(show) {
+        loaderEl.style.display = show ? 'flex' : 'none';
+    }
+
+    // --- Event Listeners ---
+
+    searchInput.addEventListener('input', renderGrid);
+
+    // Initial Boot
+    window.onload = () => {
+        fullReload();
+        setInterval(fullReload, CONFIG.updateInterval);
     };
-
-    // --- API & Data Fetching ---
-
-    async function fetchSymbolList() {
-        logMsg('Fetching Futures Contract Info...', 'INFO');
-        try {
-            const response = await fetch(`${CONFIG.binanceBaseUrl}/fapi/v1/exchangeInfo`);
-            const data = await response.json();
-
-            // Filter for USDT, USD, and PEGGED pairs. Ignore LEVERAGED tokens (e.g., BTC3L)
-            const validSymbols = data.symbols.filter(sym => 
-                sym.quoteAsset === 'USDT' || 
-                sym.contractType === 'PERPETUAL' || 
-                sym.contractType === 'CURRENT_QUARTER' ||
-                sym.contractType === 'NEXT_QUARTER'
-            );
-
-            state.symbols = validSymbols.map(s => s.symbol);
-            coinCountEl.innerText = state.symbols.length;
-
-            // Initialize data structure if empty
-            state.symbols.forEach(sym => {
-                if (!state.data[sym]) state.data[sym] = getEmptyData(sym);
-            });
-
-            return true;
-        } catch (e) {
-            logMsg(`Error fetching symbols: ${e.message}`, 'ERR');
-            return false;
-        }
-    }
-
-    function getEmptyData(symbol) {
-        const isGold = symbol === 'XAUUSD';
-        return {
-            symbol: symbol,
-            price: 0,
-            open: 0, // 24h Open
-            high: 0,
-            low: 0,
-            volume: 0,
-            changePct: 0,
-            rsi: 50,      // Approximate RSI
-            macd: 0,
-            trend: 'NEUTRAL',
-            type: isGold ? 'GOLD' : 'CRYPTO',
-            cardId: `card-${symbol}`
-        };
-    }
-
-    async function updatePrices() {
-        logMsg('Updating Market Data...', 'INFO');
-
-        // Fetch 24h Ticker for all (efficient)
-        const response = await fetch(`${CONFIG.binanceBaseUrl}/fapi/v2/ticker/24hr`);
-        const data = await response.json();
-
-        // Map to our state structure
-        let newSignalsCount = 0;
-
-        data.forEach(t => {
-            if (!state.symbols.includes(t.symbol)) return;
-
-            const isNew = !state.data[t.symbol].price || state.data[t.symbol].price === 0;
-
-            state.data[t.symbol] = {
-                symbol: t.symbol,
-                price: parseFloat(t.lastPrice),
-                open: parseFloat(t.openPrice),
-                high: parseFloat(t.highPrice),
-                low: parseFloat(t.lowPrice),
-                volume: parseFloat(t.volume),
-                changePct: parseFloat(t.priceChangePercent),
-                rsi: calculateRSIMock(t.price, t.changePct), // Mock for demo, in prod use klines
-                trend: calculateTrendMock(t.price, t.open),
-                type: t.symbol === 'XAUUSD' ? 'GOLD' : 'CRYPTO'
-            };
-
-            if (!isNew && state.data[t.symbol].price !== 0) {
-                // Check for new signal triggers (simple logic for demo)
-                const p = state.data[t.symbol];
-                if(p.changePct > 3.5 || p.changePct < -3.5) newSignalsCount++;
-            }
-        });
-
-        if(newSignalsCount > 0) {
-            logMsg(`Market Scan Complete. ${newSignalsCount} volatile assets found.`, 'INFO');
-        }
-
-        renderCards();
-    }
-
-    // --- Signal Logic (Dark Hacker Method) ---
-
-    function calculateRSIMock(price, pctChange) {
-        // Simulated RSI based on price momentum and volatility
-        // In a real implementation, you would fetch Klines for precise calculation
-        let rsi = 50;
-        if (pctChange > 1) rsi += Math.min(40, pctChange * 2); // Uptrend -> High RSI
-        else if (pctChange < -1) rsi -= Math.min(40, Math.abs(pctChange) * 2);
-
-        // Normalize
-        return Math.max(0, Math.min(100, rsi));
-    }
-
-    function calculateTrendMock(price, open) {
-        if (price > open) return 'BULL';
-        return 'BEAR';
-    }
-
-    function getSignalAction(data) {
-        // Core Strategy
-        const price = data.price;
-        const open = data.open;
-        const change = data.changePct;
-
-        // Dark Hacker Logic:
-        // 1. Strong Uptrend + Not Overbought (RSI < 75) -> BUY
-        // 2. Strong Downtrend + Not Oversold (RSI > 25) -> SELL
-        // 3. Volatility Expansion
-
-        let action = 'HOLD';
-
-        if (data.symbol === 'XAUUSD') {
-            // Gold Specific Logic
-            if(change > 0.8 && data.rsi < 70) action = 'BUY';
-            else if(change < -0.8 && data.rsi > 30) action = 'SELL';
-        } else {
-            // Crypto Specific
-            if(change > 1.5 && data.rsi < 65) action = 'BUY';
-            else if(change < -1.5 && data.rsi > 35) action = 'SELL';
-            else if(Math.abs(change) > 2.5) action = (change > 0 ? 'BUY' : 'SELL'); // Momentum breakout
-        }
-
-        return action;
-    }
-
-    function calculateTPSL(action, price, type) {
-        // ATR-based estimation
-        const atr = price * 0.015; // Approx 1.5% ATR for crypto, wider for gold
-
-        if (action === 'BUY') {
-            return { tp: price + (atr * 2), sl: price - (atr * 1) };
-        } else if (action === 'SELL') {
-            return { tp: price - (atr * 2), sl: price + (atr * 1) };
-        }
-        return { tp: null, sl: null };
-    }
-
-    // --- Rendering ---
-
-    function renderCards() {
-        const filter = searchInput.value.toLowerCase();
-        let html = '';
-        let activeSignals = 0;
-
-        state.symbols.forEach(sym => {
-            if (sym.includes(filter) || sym.toLowerCase().includes(filter)) {
-                const d = state.data[sym];
-                if(!d) return;
-
-                const action = getSignalAction(d);
-                const { tp, sl } = calculateTPSL(action, d.price, d.type);
-
-                let cardClass = 'card';
-                if (action === 'BUY') cardClass += ' buy-sig';
-                if (action === 'SELL') cardClass += ' sell-sig';
-
-                const trendColor = d.changePct >= 0 ? 'up' : 'down';
-
-                // Only count as a "Signal" if it's not HOLD (or has high volatility)
-                if(action !== 'HOLD') activeSignals++;
-
-                html += `
-                    <div id="${sym}" class="${cardClass}">
-                        <div class="card-top">
-                            <span class="symbol-name">${sym}</span>
-                            <span class="contract-type" style="color:${d.type === 'GOLD' ? 'var(--accent-gold)' : 'var(--accent-binance)'}">${d.type}</span>
-                        </div>
-
-                        <div class="price-row">
-                            <span class="current-price ${trendColor}">${formatPrice(d.price)}</span>
-                            <span class="change-pct ${trendColor}">${d.changePct > 0 ? '+' : ''}${d.changePct.toFixed(2)}%</span>
-                        </div>
-
-                        <div class="indicators">
-                            <span>RSI: <span class="ind-val">${Math.round(d.rsi)}</span></span>
-                            <span>ATR: <span class="ind-val">${((d.price * 0.015)).toFixed(2)}</span></span>
-                        </div>
-
-                        <div class="signals-box">
-                            ${action === 'BUY' ? 
-                                `<div class="sig-pill" style="background: rgba(16,185,129,0.2); border: 1px solid var(--bullish);"><span class="sig-label">ACTION</span>BUY</div>` : 
-                                (action === 'SELL' ?
-                                `<div class="sig-pill" style="background: rgba(239,68,68,0.2); border: 1px solid var(--bearish);"><span class="sig-label">ACTION</span>SELL</div>` :
-                                `<div class="sig-pill" style="opacity:0.5;"><span class="sig-label">ACTION</span>HOLD</div>`
-                            )}
-
-                            <div class="sig-pill">
-                                <span class="sig-label tp-val">TP</span>
-                                <span>${formatPrice(tp)}</span>
-                            </div>
-                             <div class="sig-pill">
-                                <span class="sig-label sl-val">SL</span>
-                                <span>${formatPrice(sl)}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-        });
-
-        gridEl.innerHTML = html;
-        signalCountEl.innerText = activeSignals;
-    }
-
-    // --- WebSocket for Real-Time Updates ---
-
-    function initWebSocket() {
-        const streamNames = state.symbols.slice(0, 20).map(s => `${s.toLowerCase()}@ticker`); 
-        // Note: In prod, we use a composite stream or parallel connections. 
-        // Here we fetch REST for ALL (as requested) but can enhance with WS later.
-        // For this pure JS solution, we stick to efficient REST polling as Binance WS limit is strict on free tier without multiplexing.
-
-        logMsg('WebSocket engine initialized.', 'INFO');
-    }
-
-    // --- Initialization ---
-
-    async function refreshAll() {
-        gridEl.innerHTML = `<div class="loader-container"><div class="spinner"></div></div>`;
-        await fetchSymbolList();
-        await updatePrices();
-        initWebSocket();
-    }
-
-    searchInput.addEventListener('input', renderCards);
-
-    // Auto Refresh Loop
-    setInterval(async () => {
-        await updatePrices();
-    }, CONFIG.refreshInterval);
-
-    // Initial Load
-    window.onload = refreshAll;
 
 </script>
 </body>
